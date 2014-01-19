@@ -80,17 +80,13 @@ function ListGUI:__init()
 
 	Network:Subscribe("UpdatePings", self, self.UpdatePings)
 
-	Events:Subscribe( "KeyUp", self,
-		self.KeyUp )
-
-	Events:Subscribe( "LocalPlayerInput", self,
-		self.LocalPlayerInput )
-
-	Events:Subscribe( "PostTick", self, 
-		self.PostTick )
-
-	Events:Subscribe( "PlayerJoin", self, self.PlayerJoin)
-	Events:Subscribe( "PlayerQuit", self, self.PlayerQuit)
+	Events:Subscribe( "KeyUp", self, self.KeyUp )
+	Events:Subscribe( "LocalPlayerInput", self, self.LocalPlayerInput )
+	Events:Subscribe( "PostTick", self, self.PostTick )
+	Events:Subscribe( "PlayerJoin", self, self.PlayerJoin )
+	Events:Subscribe( "PlayerQuit", self, self.PlayerQuit )
+	Events:Subscribe( "ModulesLoad", self, self.ModulesLoad )
+	Events:Subscribe( "ModuleUnload", self, self.ModuleUnload )
 
 	self.window:Subscribe( "WindowClosed", self, self.CloseClicked )
 end
@@ -190,6 +186,24 @@ function ListGUI:PostTick()
 			self.ReceivedLastUpdate = false
 		end
 	end
+end
+
+
+function ListGUI:ModulesLoad()
+    Events:Fire( "HelpAddItem",
+        {
+            name = "Player List",
+            text = 
+                "The player list is a basic list of players and their pings. " ..
+                "It can be accessed through F6."
+        } )
+end
+
+function ListGUI:ModuleUnload()
+    Events:Fire( "HelpRemoveItem",
+        {
+            name = "Player List"
+        } )
 end
 
 list = ListGUI()
