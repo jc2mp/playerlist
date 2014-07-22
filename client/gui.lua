@@ -17,7 +17,7 @@ function ListGUI:__init()
 
 	self.list = SortedList.Create( self.window )
 	self.list:SetDock( GwenPosition.Fill )
-	self.list:SetMargin( Vector2( 4, 4 ), Vector2( 4, 4 ) )
+	self.list:SetMargin( Vector2( 4, 4 ), Vector2( 4, 0 ) )
 	self.list:AddColumn( "ID", 64 )
 	self.list:AddColumn( "Name" )
 	self.list:AddColumn( "Ping", 64 )
@@ -27,7 +27,15 @@ function ListGUI:__init()
 	self.filter:SetDock( GwenPosition.Bottom )
 	self.filter:SetSize( Vector2( self.window:GetSize().x, 32 ) )	
 	self.filter:SetMargin( Vector2( 4, 4 ), Vector2( 4, 4 ) )
-	self.filter:Subscribe( "TextChanged", self, self.TextChanged )
+	self.filter:Subscribe( "TextChanged", self, self.FilterChanged )
+
+	self.filterGlobal = LabeledCheckBox.Create( self.window )
+	self.filterGlobal:SetDock( GwenPosition.Bottom )
+	self.filterGlobal:SetSize( Vector2( self.window:GetSize().x, 20 ) )	
+	self.filterGlobal:SetMargin( Vector2( 4, 4 ), Vector2( 4, 0 ) )
+	self.filterGlobal:GetLabel():SetText( "Search entire name" )
+	self.filterGlobal:GetCheckBox():SetChecked( true )
+	self.filterGlobal:GetCheckBox():Subscribe( "CheckChanged", self, self.FilterChanged )
 	
 	self.PlayerCount = 0
 	self.Rows = {}
@@ -161,8 +169,10 @@ function ListGUI:RemovePlayer( player )
 	self.Rows[player:GetId()] = nil
 end
 
-function ListGUI:TextChanged()
+function ListGUI:FilterChanged()
 	local text = self.filter:GetText():lower()
+
+	local globalSearch = self.filterGlobal:GetCheckBox():GetChecked()
 
 	if text:len() > 0 then
 		for k, v in pairs(self.Rows) do
@@ -171,13 +181,14 @@ function ListGUI:TextChanged()
 			whether the string is within this row.
 			If pattern searching is used, pattern characters such as '[' and ']'
 			in names cause this function to error.
-
-			We also check the resulting index to be 1 to ensure that this row
-			starts with the given string.
 			]]
 
-			local visible = (v:GetCellText(1):lower():find( text, 1, true ) == 1)
-			v:SetVisible( visible )
+			local index = v:GetCellText(1):lower():find( text, 1, true )
+			if globalSearch then
+				v:SetVisible( index ~= nil )
+			else
+				v:SetVisible( index == 1 )
+			end
 		end
 	else
 		for k, v in pairs(self.Rows) do
