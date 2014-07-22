@@ -166,8 +166,17 @@ function ListGUI:TextChanged()
 
 	if text:len() > 0 then
 		for k, v in pairs(self.Rows) do
-			local visible = (string.find( v:GetCellText(1):lower(), text ) == 1)
+			--[[
+			Use a plain text search, instead of a pattern search, to determine
+			whether the string is within this row.
+			If pattern searching is used, pattern characters such as '[' and ']'
+			in names cause this function to error.
 
+			We also check the resulting index to be 1 to ensure that this row
+			starts with the given string.
+			]]
+
+			local visible = (v:GetCellText(1):lower():find( text, 1, true ) == 1)
 			v:SetVisible( visible )
 		end
 	else
