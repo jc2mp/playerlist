@@ -152,6 +152,11 @@ function ListGUI:AddPlayer( player )
 	item:SetCellText( 1, player:GetName() )
 	item:SetCellText( 2, "..." )
 
+	if LocalPlayer:IsFriend( player ) then
+		item:SetTextColor( Color( 150, 160, 255 ) )
+		item:SetToolTip( "Friend" )
+	end
+
 	self.Rows[player:GetId()] = item
 
 	local text = self.filter:GetText():lower()
